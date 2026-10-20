@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Howard Puzzle Game · Wireframe Prototype</title>
+<style>
+:root{--ink:#111;--paper:#fff;--g1:#f5f5f5;--g2:#e8e8e8;--g3:#c9c9c9;--g4:#8a8a8a;--g5:#4a4a4a}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;background:#ebebeb;color:var(--ink);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.app{display:grid;grid-template-columns:270px 1fr 330px;height:100vh}
+.nav,.notes{background:#fff;overflow:auto;padding:22px 18px}
+.nav{border-right:1px solid var(--g2)}
+.notes{border-left:1px solid var(--g2)}
+.brand b{display:block;font-size:17px}
+.brand span{font-size:12px;color:var(--g4)}
+.navsec{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--g4);margin:22px 0 8px}
+.navgrp{font-size:12px;font-weight:700;color:var(--g5);margin:12px 0 4px 10px}
+.jump{display:flex;gap:10px;width:100%;text-align:left;padding:7px 10px;border-radius:9px;font-size:14px;line-height:1.3}
+.jump:hover{background:var(--g1)}
+.jump .n{font-variant-numeric:tabular-nums;color:var(--g4);width:20px;flex:none}
+.jump.on{background:#111;color:#fff}
+.jump.on .n{color:#bbb}
+.toggle{display:flex;gap:8px;align-items:center;font-size:14px;padding:6px 10px}
+.linkbtn{font-size:14px;padding:6px 10px;text-decoration:underline}
+.fine{font-size:12.5px;color:var(--g4);line-height:1.45}
+.nav .fine{padding:10px}
+.stage{display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.phone{width:410px;height:864px;border:10px solid #111;border-radius:56px;background:#fff;position:relative;overflow:hidden;transform-origin:center;flex:none;box-shadow:0 30px 70px rgba(0,0,0,.18)}
+.phone::after{content:'';position:absolute;bottom:8px;left:50%;width:134px;height:5px;border-radius:3px;background:#111;transform:translateX(-50%);z-index:60}
+.statusbar{height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 30px;font-weight:600;font-size:15px}
+.sb-r{display:flex;gap:6px;align-items:center}
+.host{position:absolute;top:44px;left:0;right:0;bottom:0;overflow:hidden}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;background:#fff}
+.screen.active{display:flex}
+.topbar{height:56px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 10px;border-bottom:1px solid var(--g2)}
+.tb-title{font-weight:700;font-size:17px}
+.iconbtn{width:44px;height:44px;display:grid;place-items:center;font-size:30px;line-height:1;border-radius:12px}
+.iconbtn:hover{background:var(--g1)}
+.pad{padding:20px;display:flex;flex-direction:column;gap:14px;flex:1;overflow:auto}
+.btn{min-height:54px;border-radius:14px;border:2px solid #111;font-weight:700;font-size:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;background:#fff;padding:6px 14px;gap:1px}
+.btn.primary{background:#111;color:#fff}
+.btn.quiet{border-color:var(--g3)}
+.btn small{font-weight:500;font-size:12px;opacity:.7}
+.btn:active{transform:scale(.985)}
+.lead{font-size:16px;color:var(--g5);line-height:1.45}
+.center{text-align:center}
+.chip{font-size:12px;font-weight:700;border:1.5px solid #111;border-radius:20px;padding:3px 9px}
+/* splash */
+.splash{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;cursor:pointer}
+.app-name{font-size:30px;font-weight:800;letter-spacing:3px}
+.tbc{font-size:11px;border:1px dashed var(--g4);padding:2px 9px;border-radius:20px;color:var(--g4)}
+.splash-foot{position:absolute;bottom:60px;font-size:13px;color:var(--g4)}
+/* home */
+.home{justify-content:space-between}
+.home-hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;margin-top:6px}
+.home-hero h1{font-size:30px;letter-spacing:.5px}
+.home-hero p{color:var(--g5)}
+.home-actions{display:flex;flex-direction:column;gap:12px}
+/* settings */
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:16px;border:2px solid #111;border-radius:16px;padding:16px 18px;text-align:left}
+.set-row b{display:block;font-size:16px}
+.set-row .sub{font-size:13px;color:var(--g5);font-weight:500;margin-top:2px}
+.switch{position:relative;width:52px;height:32px;flex:none}
+.switch input{opacity:0;width:0;height:0;position:absolute}
+.switch i{position:absolute;inset:0;background:var(--g3);border-radius:16px;transition:.2s;pointer-events:none}
+.switch i::after{content:'';position:absolute;width:26px;height:26px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.switch input:checked+i{background:#111}
+.switch input:checked+i::after{transform:translateX(20px)}
+.cont{display:flex;gap:12px;align-items:center;border:2px solid #111;border-radius:16px;padding:12px}
+.cont .thumb{width:64px;height:64px;border-radius:8px;overflow:hidden;flex:none;border:1px solid var(--g3);position:relative}
+.cont .thumb img{width:100%;height:100%;object-fit:cover;filter:grayscale(1)}
+.cont b{display:block}
+.cont span{font-size:13px;color:var(--g5)}
+.cont .btn{width:auto;min-height:40px;margin-left:auto;font-size:14px;border-radius:11px}
+/* difficulty */
+.diff{display:flex;align-items:center;gap:14px;border:2px solid #111;border-radius:18px;padding:14px;text-align:left;width:100%}
+.diff b{font-size:20px;display:block}
+.diff span{color:var(--g5);font-size:14px}
+.chev{margin-left:auto;font-size:30px;color:var(--g4)}
+/* photo */
+.or{display:flex;align-items:center;gap:10px;color:var(--g4);font-size:13px;margin-top:6px}
+.or::before,.or::after{content:'';flex:1;height:1px;background:var(--g2)}
+.samples{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sample{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--g5);text-align:center}
+.sample img{width:100%;aspect-ratio:1;border-radius:12px;border:1px solid var(--g3);display:block}
+.sample:hover img{border-color:#111}
+/* crop */
+.crop-wrap{position:relative;width:300px;height:300px;margin:8px auto 0;border:3px solid #111;flex:none}
+.crop-wrap img{width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(1)}
+.crop-grid{position:absolute;inset:0}
+/* game */
+.gamebar{height:64px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 10px}
+.timer-wrap{display:flex;flex-direction:column;align-items:center}
+.mode{font-size:11px;color:var(--g4);text-transform:uppercase;letter-spacing:1.4px;font-weight:700}
+.timer{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums}
+.board-wrap{display:flex;justify-content:center;padding-top:8px;flex:none}
+.board{position:relative}
+.track{position:absolute;border:1px dashed #d4d4d4;background:#fff}
+.tile{position:absolute;left:0;top:0;transition:transform .14s ease-out;will-change:transform}
+.board.shuffling .tile{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.ti{position:absolute;inset:0}
+.tile.pic .ti{box-shadow:inset 0 0 0 1px #fff;background-repeat:no-repeat;filter:grayscale(1)}
+.tile.pic.dark .ti{background:#1a1a1a}
+.tile.pic.light .ti{background:#fff;box-shadow:inset 0 0 0 1px #bdbdbd}
+.tile.blank .ti,.tile.arrow .ti{background:repeating-linear-gradient(45deg,#f8f8f8 0 3px,#d5d5d5 3px 4.5px);box-shadow:inset 0 0 0 1px #fff}
+.tile.arrow{cursor:pointer;z-index:2}
+.tile.arrow::before{content:'';position:absolute;inset:-5px}
+.tile.arrow .ti svg{position:absolute;left:10%;top:10%;width:80%;height:80%;border-radius:50%;transition:opacity .2s}
+.tile.arrow.dim .ti svg{opacity:.28}
+.tile.arrow:hover .ti svg{transform:scale(1.08)}
+.center-frame{position:absolute;border:3px solid #111;pointer-events:none;z-index:3}
+@keyframes shake{0%,100%{transform:translate(0,0)}20%{transform:translate(-3px,-1px)}40%{transform:translate(3px,1px)}60%{transform:translate(-2px,1px)}80%{transform:translate(2px,-1px)}}
+.tile.shake .ti{animation:shake .32s}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(0,0,0,.55)}100%{box-shadow:0 0 0 12px rgba(0,0,0,0)}}
+.tile.hint .ti svg{animation:pulse 1s infinite;opacity:1!important}
+@keyframes winframe{0%{box-shadow:0 0 0 0 rgba(0,0,0,.6),inset 0 0 0 300px rgba(255,255,255,0)}25%{box-shadow:0 0 0 16px rgba(0,0,0,0),inset 0 0 0 300px rgba(255,255,255,.9)}100%{box-shadow:0 0 0 0 rgba(0,0,0,0),inset 0 0 0 300px rgba(255,255,255,0)}}
+.board.win .center-frame{animation:winframe 1.2s ease-out}
+.board.win .tile:not(.pic){opacity:.25;transition:opacity .6s}
+.game-foot{padding:16px 26px;text-align:center;color:var(--g5);font-size:14px;line-height:1.45}
+.goal{display:flex;align-items:center;gap:12px;border:1.5px solid var(--g3);border-radius:14px;padding:10px 12px;text-align:left;margin-bottom:12px}
+.goal b{display:block;color:#111}
+.goal .btn{width:auto;min-height:40px;margin-left:auto;border-radius:11px;font-size:14px}
+/* toast */
+.toast{position:absolute;left:50%;bottom:120px;transform:translate(-50%,8px);background:#111;color:#fff;padding:10px 14px;border-radius:12px;font-size:13px;opacity:0;transition:.2s;pointer-events:none;white-space:nowrap;z-index:40}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+/* sheet */
+#ov{position:absolute;inset:0;z-index:30;display:none}
+#ov.open{display:block}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:26px 26px 0 0;padding:10px 20px 34px;display:flex;flex-direction:column;gap:12px;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--g3);margin:0 auto 4px}
+.sheet h2{font-size:22px;text-align:center}
+.sheet-actions{display:flex;flex-direction:column;gap:10px}
+.bigtime{font-size:46px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;line-height:1}
+/* tour */
+#tour{position:absolute;inset:0;z-index:35;display:none}
+#tour.open{display:block}
+.tour-card{position:absolute;left:16px;right:16px;bottom:30px;background:#fff;border-radius:24px;padding:22px;border:2px solid #111;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;animation:up .22s ease-out}
+.tour-card h3{font-size:20px}
+.tour-card p{color:var(--g5);line-height:1.45}
+.dots{display:flex;gap:6px}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--g3)}
+.dots i.on{background:#111;width:20px;border-radius:4px}
+.tour-row{display:flex;width:100%;gap:10px;align-items:center}
+.tour-row .skip{padding:12px;color:var(--g5);font-weight:600}
+.tour-row .btn{margin-left:auto;width:auto;min-width:130px}
+/* learn */
+.step{display:flex;gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid var(--g2)}
+.step:last-of-type{border-bottom:0}
+.step .txt b{display:block;margin-bottom:3px}
+.step .txt{font-size:14px;color:var(--g5);line-height:1.4}
+.mini{flex:none;display:block}
+/* notes */
+.notes .sid{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--g4);text-transform:uppercase}
+.notes h2{font-size:20px;margin:4px 0 8px}
+.notes .what{color:var(--g5);line-height:1.45;font-size:14px}
+.notes h4{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--g4);margin:18px 0 6px}
+.notes ul{padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:13.5px;line-height:1.45}
+.notes .box{border:1.5px solid var(--g2);border-radius:14px;padding:12px 14px;margin-top:22px}
+.notes .box h4{margin-top:0}
+@media(max-width:1180px){.app{grid-template-columns:240px 1fr}.notes{display:none}}
+@media(max-width:760px){.app{grid-template-columns:1fr}.nav{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="nav">
+    <div class="brand"><b>Howard Puzzle Game</b><span>Wireframe prototype v1 · 13 Oct 2026</span></div>
+    <div class="navsec">Jump to screen</div>
+    <div id="jumps"></div>
+    <div class="navsec">Prototype</div>
+    <label class="toggle"><input type="checkbox" id="snd" checked> Sound effects</label>
+    <button class="linkbtn" id="resetProto">Restart as first launch</button>
+    <p class="fine">Black and white, low fidelity. Layout, flow and game logic are real and playable. Save persists in this browser. Auto-pause/auto-save on tab hide approximates the mobile requirement. Colors, icon and app name come in the UI phase.</p>
+  </aside>
+
+  <main class="stage">
+    <div class="phone" id="phone">
+      <div class="statusbar"><span>9:41</span>
+        <span class="sb-r"><svg width="18" height="11" viewBox="0 0 18 11"><rect x="0" y="7" width="3" height="4" rx="1" fill="#111"/><rect x="5" y="5" width="3" height="6" rx="1" fill="#111"/><rect x="10" y="2.5" width="3" height="8.5" rx="1" fill="#111"/><rect x="15" y="0" width="3" height="11" rx="1" fill="#111"/></svg><svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3" fill="none" stroke="#111"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="#111"/><rect x="22.5" y="4" width="2" height="4" rx="1" fill="#111"/></svg></span>
+      </div>
+      <div class="host" id="host">
+
+        <section class="screen" id="s-splash">
+          <div class="splash" id="splashTap">
+            <div id="logoMark"></div>
+            <div class="app-name">CRISSCROSS</div>
+            <div class="tbc">App name placeholder</div>
+            <div class="splash-foot">Tap to continue</div>
+          </div>
+        </section>
+
+        <section class="screen" id="s-home">
+          <div class="pad home">
+            <div class="home-hero">
+              <div id="heroMini"></div>
+              <h1>CrissCross</h1>
+              <p>Turn any photo into a sliding puzzle.</p>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div id="continueSlot"></div>
+              <div class="home-actions">
+                <button class="btn primary" id="btnNew">New puzzle</button>
+                <button class="btn" id="btnLearn">How to play</button>
+                <button class="btn quiet" id="btnSettings">Settings</button>
+              </div>
+              <p class="fine center">No account needed. Your progress stays on this phone.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen" id="s-settings">
+          <header class="topbar"><button class="iconbtn" id="settingsBack" aria-label="Back">‹</button><div class="tb-title">Settings</div><span class="iconbtn"></span></header>
+          <div class="pad">
+            <p class="lead">Feedback while you play. Saved on this phone.</p>
+            <label class="set-row" for="setSound"><span><b>Sound effects</b><span class="sub">Moves, limit buzz, and victory</span></span><span class="switch"><input type="checkbox" id="setSound" checked><i></i></span></label>
+            <label class="set-row" for="setVibe"><span><b>Vibration</b><span class="sub">Buzz when a slide hits its limit</span></span><span class="switch"><input type="checkbox" id="setVibe" checked><i></i></span></label>
+          </div>
+        </section>
+
+        <section class="screen" id="s-difficulty">
+          <header class="topbar"><button class="iconbtn" data-back aria-label="Back">‹</button><div class="tb-title">New puzzle</div><span class="iconbtn"></span></header>
+          <div class="pad">
+            <p class="lead">How many pieces should your photo be cut into?</p>
+            <button class="diff" data-n="3"><span class="d-ill" data-ill="3"></span><span><b>9 pieces</b><span>3 × 3 · Easier</span></span><span class="chev">›</span></button>
+            <button class="diff" data-n="4"><span class="d-ill" data-ill="4"></span><span><b>16 pieces</b><span>4 × 4 · Harder</span></span><span class="chev">›</span></button>
+            <p class="fine">Same rules for both. The 9-piece board is a little smaller.</p>
+          </div>
+        </section>
+
+        <section class="screen" id="s-photo">
+          <header class="topbar"><button class="iconbtn" data-back aria-label="Back">‹</button><div class="tb-title">Choose a photo</div><span class="chip" id="photoChip" style="margin-right:6px">9 pieces</span></header>
+          <div class="pad">
+            <button class="btn primary" id="btnGallery">Choose from gallery<small>Opens your photos</small></button>
+            <div class="or">or play a sample photo</div>
+            <div class="samples" id="samples"></div>
+          </div>
+        </section>
+
+        <section class="screen" id="s-crop">
+          <header class="topbar"><button class="iconbtn" data-back aria-label="Back">‹</button><div class="tb-title">Your puzzle</div><span class="iconbtn"></span></header>
+          <div class="pad">
+            <div class="crop-wrap"><img id="cropImg" alt="Cropped photo preview"><div class="crop-grid" id="cropGrid"></div></div>
+            <p class="fine center">Cropped to a square automatically.<br>It will be cut into <b id="cropN">9</b> pieces and mixed up.</p>
+            <div style="margin-top:auto;display:flex;flex-direction:column;gap:10px">
+              <button class="btn primary" id="btnStart">Start puzzle</button>
+              <button class="btn quiet" id="btnOther">Choose another photo</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen" id="s-game">
+          <header class="gamebar">
+            <button class="iconbtn" id="btnPause" aria-label="Pause"><svg width="22" height="22" viewBox="0 0 22 22"><rect x="4" y="3" width="5" height="16" rx="1.5" fill="#111"/><rect x="13" y="3" width="5" height="16" rx="1.5" fill="#111"/></svg></button>
+            <div class="timer-wrap"><span class="mode" id="gMode">9 pieces</span><span class="timer" id="gTimer">00:00</span></div>
+            <span class="iconbtn"></span>
+          </header>
+          <div class="board-wrap"><div class="board" id="board"></div></div>
+          <div class="game-foot" id="gFoot"></div>
+        </section>
+
+        <section class="screen" id="s-learn">
+          <header class="topbar"><button class="iconbtn" id="learnBack" aria-label="Back">‹</button><div class="tb-title">How to play</div><span class="iconbtn"></span></header>
+          <div class="pad">
+            <div id="steps"></div>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+              <button class="btn primary" id="btnPractice">Try the practice puzzle</button>
+              <button class="btn" id="btnSample">Play a sample photo</button>
+            </div>
+          </div>
+        </section>
+
+        <div id="ov"><div class="scrim"></div><div class="sheet" id="sheet"></div></div>
+        <div id="tour"><div class="scrim"></div><div class="tour-card" id="tourCard"></div></div>
+        <div class="toast" id="toast"></div>
+      </div>
+    </div>
+  </main>
+
+  <aside class="notes" id="notes"></aside>
+</div>
+<input type="file" id="file" accept="image/*" hidden>
+
+<script>
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const rnd=n=>Math.floor(Math.random()*n), pick=a=>a[rnd(a.length)];
+const A=5; // arm length: 2 empty + arrow + 2 blanks
+const LS={saved:'hp_v1_saved',tour:'hp_v1_tour',settings:'hp_v1_settings'};
+let G=null, saved=null, tourSeen=false, pendingN=3, pendingImg=null, cur=null, noteKey='01';
+let timers=[], tickH=null, hist=[], learnReturn=null, settingsReturn=null, soundOn=true, vibeOn=true, toastH=null;
+const later=(fn,ms)=>{const t=setTimeout(fn,ms);timers.push(t);return t};
+const clearLater=()=>{timers.forEach(clearTimeout);timers=[]};
+function loadPersist(){
+  try{
+    const s=localStorage.getItem(LS.saved);saved=s?JSON.parse(s):null;
+    tourSeen=localStorage.getItem(LS.tour)==='1';
+    const st=JSON.parse(localStorage.getItem(LS.settings)||'{}');
+    soundOn=st.sound!==false;vibeOn=st.vibe!==false;
+    localStorage.removeItem('hp_v1_bests');
+  }catch(e){saved=null;tourSeen=false;soundOn=true;vibeOn=true}
+}
+function persistSaved(){try{if(saved)localStorage.setItem(LS.saved,JSON.stringify(saved));else localStorage.removeItem(LS.saved)}catch(e){}}
+function persistTour(){try{localStorage.setItem(LS.tour,tourSeen?'1':'0')}catch(e){}}
+function persistSettings(){try{localStorage.setItem(LS.settings,JSON.stringify({sound:soundOn,vibe:vibeOn}))}catch(e){}}
+function syncSettingsUI(){
+  const a=$('#setSound'),b=$('#setVibe'),c=$('#snd');
+  if(a)a.checked=soundOn;if(b)b.checked=vibeOn;if(c)c.checked=soundOn;
+}
+function clearPersist(){try{localStorage.removeItem(LS.saved);localStorage.removeItem(LS.tour);localStorage.removeItem(LS.settings);localStorage.removeItem('hp_v1_bests')}catch(e){}saved=null;tourSeen=false;soundOn=true;vibeOn=true;syncSettingsUI()}
+function snapshotGame(g){return {N:g.N,img:g.img,grid:g.grid.map(r=>r.slice()),off:{r:g.off.r.slice(),c:g.off.c.slice()},elapsed:g.elapsed+(g.running?performance.now()-g.t0:0),savedAt:Date.now()}}
+
+/* ---------- sound ---------- */
+let actx=null;
+function tone(f,dur,type='sine',vol=.08,when=0){
+  if(!soundOn)return;
+  try{ if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){return}
+  const a=actx,o=a.createOscillator(),g=a.createGain(),t=a.currentTime+when;
+  o.type=type;o.frequency.value=f;g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g).connect(a.destination);o.start(t);o.stop(t+dur+.02);
+}
+const sfx={click:()=>tone(1500,.035,'square',.025),buzz:()=>tone(105,.25,'sawtooth',.07),
+  win:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.25,'triangle',.09,i*.11))};
+
+/* ---------- game engine ---------- */
+function inBoard(g,r,c){return (r>=A&&r<A+g.N)||(c>=A&&c<A+g.N)}
+function newGame(N,img,mode){
+  const L=N+2*A;
+  const g={N,L,img,mode,tiles:[],grid:[],off:{r:Array(N).fill(0),c:Array(N).fill(0)},elapsed:0,running:false,solved:false,stack:[]};
+  for(let r=0;r<L;r++){const row=[];for(let c=0;c<L;c++)row.push(inBoard(g,r,c)?-1:null);g.grid.push(row)}
+  const add=t=>{t.id=g.tiles.length;g.tiles.push(t);return t.id};
+  for(let i=0;i<N;i++)for(let j=0;j<N;j++)g.grid[A+i][A+j]=add({type:'pic',pi:i,pj:j});
+  for(let i=0;i<N;i++){const r=A+i;
+    for(let c=2;c<=L-3;c++){ if(c>=A&&c<A+N)continue;
+      g.grid[r][c]= c===2?add({type:'arrow',kind:'r',lane:i,d:-1,dir:'left'})
+                  : c===L-3?add({type:'arrow',kind:'r',lane:i,d:1,dir:'right'}):add({type:'blank'}); }}
+  for(let j=0;j<N;j++){const c=A+j;
+    for(let r=2;r<=L-3;r++){ if(r>=A&&r<A+N)continue;
+      g.grid[r][c]= r===2?add({type:'arrow',kind:'c',lane:j,d:-1,dir:'up'})
+                  : r===L-3?add({type:'arrow',kind:'c',lane:j,d:1,dir:'down'}):add({type:'blank'}); }}
+  return g;
+}
+const canMove=(g,k,l,d)=>Math.abs(g.off[k][l]+d)<=2;
+function rawMove(g,k,l,d){
+  const L=g.L;
+  if(k==='r'){const r=A+l,row=g.grid[r],nw=Array(L).fill(-1);for(let c=0;c<L;c++)if(row[c]>=0)nw[c+d]=row[c];g.grid[r]=nw}
+  else{const c=A+l,col=[];for(let r=0;r<L;r++)col.push(g.grid[r][c]);const nw=Array(L).fill(-1);for(let r=0;r<L;r++)if(col[r]>=0)nw[r+d]=col[r];for(let r=0;r<L;r++)g.grid[r][c]=nw[r]}
+  g.off[k][l]+=d;
+}
+function pushStack(g,k,l,d){const s=g.stack,t=s[s.length-1];if(t&&t[0]===k&&t[1]===l&&t[2]===-d)s.pop();else s.push([k,l,d])}
+function applyN(g,k,l,s){const d=Math.sign(s);for(let n=0;n<Math.abs(s);n++){rawMove(g,k,l,d);pushStack(g,k,l,d)}}
+function centerTile(g,i,j){const id=g.grid[A+i][A+j];return id>=0?g.tiles[id]:null}
+function centerAllPics(g){for(let i=0;i<g.N;i++)for(let j=0;j<g.N;j++){const t=centerTile(g,i,j);if(!t||t.type!=='pic')return false}return true}
+function cellOk(g,i,j){const t=centerTile(g,i,j);if(!t||t.type!=='pic')return false;
+  return g.mode==='practice'?((t.pi===1)===(i===1)):(t.pi===i&&t.pj===j)}
+function isSolved(g){for(let i=0;i<g.N;i++)for(let j=0;j<g.N;j++)if(!cellOk(g,i,j))return false;return true}
+function misplaced(g){let m=0;for(let i=0;i<g.N;i++)for(let j=0;j<g.N;j++)if(!cellOk(g,i,j))m++;return m}
+/* Scramble: only legal moves. Each block is a 4-move commutator that returns every slide home.
+   Blocks that would leave a blank inside the frame are undone, so the start state always has
+   all slides home and all picture pieces inside the frame. */
+function scramble(g){
+  const N=g.N,prac=g.mode==='practice',target=prac?2:(N===3?16:26);let guard=0;
+  for(;;){
+    let applied=0;
+    while(applied<target&&guard<60000){guard++;
+      const i=rnd(N),j=rnd(N),a=pick([-2,-1,1,2]),b=pick([-2,-1,1,2]);
+      const seq=Math.random()<.5?[['c',j,a],['r',i,b],['c',j,-a],['r',i,-b]]:[['r',i,b],['c',j,a],['r',i,-b],['c',j,-a]];
+      seq.forEach(m=>applyN(g,...m));
+      if(centerAllPics(g))applied++;else seq.slice().reverse().forEach(([k,l,s])=>applyN(g,k,l,-s));
+    }
+    if(guard>=60000)break;
+    if(!isSolved(g)&&(prac||misplaced(g)>=Math.ceil(N*N*.7)))break;
+  }
+}
+
+/* ---------- mini diagrams (built from the same engine) ---------- */
+let miniId=0;
+function miniSvg(N,moves=[],o={}){
+  const g=newGame(N,null,o.practice?'practice':'play');
+  moves.forEach(([k,l,s])=>{const d=Math.sign(s);for(let n=0;n<Math.abs(s);n++)rawMove(g,k,l,d)});
+  const cs=o.cell||10,L=g.L,W=cs*L,px=o.w||W;
+  const pid='hp'+(++miniId);
+  let s=`<svg class="mini" viewBox="0 0 ${W} ${W}" width="${px}" height="${px}" aria-hidden="true"><defs><pattern id="${pid}" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="3" height="3" fill="#f6f6f6"/><rect width="1" height="3" fill="#cdcdcd"/></pattern></defs>`;
+  for(let r=0;r<L;r++)for(let c=0;c<L;c++){if(!inBoard(g,r,c))continue;
+    s+=`<rect x="${c*cs+.3}" y="${r*cs+.3}" width="${cs-.6}" height="${cs-.6}" fill="#fff" stroke="#d2d2d2" stroke-width=".5" stroke-dasharray="1.2 1.2"/>`;
+    const id=g.grid[r][c];if(id<0)continue;const t=g.tiles[id];
+    let fill=`url(#${pid})`;
+    if(t.type==='pic'){ if(o.practice)fill=t.pi===1?'#1a1a1a':'#fff';
+      else{const v=Math.round(55+(t.pi*N+t.pj)*(175/(N*N-1)));fill=`rgb(${v},${v},${v})`} }
+    s+=`<rect x="${c*cs}" y="${r*cs}" width="${cs}" height="${cs}" fill="${fill}" stroke="${o.practice&&t.type==='pic'&&t.pi!==1?'#bbb':'#fff'}" stroke-width=".7"/>`;
+    if(t.type==='arrow'){
+      s+=`<circle cx="${c*cs+cs/2}" cy="${r*cs+cs/2}" r="${cs*.36}" fill="#111"/>`;
+      if(o.pulse&&o.pulse[0]===t.kind&&o.pulse[1]===t.lane&&o.pulse[2]===t.d)s+=`<circle cx="${c*cs+cs/2}" cy="${r*cs+cs/2}" r="${cs*.62}" fill="none" stroke="#111" stroke-width="1.2"/>`;
+    }
+  }
+  s+=`<rect x="${A*cs-1}" y="${A*cs-1}" width="${N*cs+2}" height="${N*cs+2}" fill="none" stroke="#111" stroke-width="2"/>`;
+  return s+'</svg>';
+}
+function arrowSvg(dir){const rot={up:0,right:90,down:180,left:270}[dir];
+  return `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#111"/><path d="M12 5.5 6.5 12h3.6v6.5h3.8V12h3.6z" fill="#fff" transform="rotate(${rot} 12 12)"/></svg>`}
+
+/* ---------- board rendering ---------- */
+function buildBoard(){
+  const g=G,b=$('#board');b.innerHTML='';b.className='board';
+  const cell=Math.floor(368/g.L);g.cell=cell;const size=cell*g.L;b.style.width=b.style.height=size+'px';
+  for(let r=0;r<g.L;r++)for(let c=0;c<g.L;c++){if(!inBoard(g,r,c))continue;
+    const t=document.createElement('div');t.className='track';
+    Object.assign(t.style,{left:c*cell+'px',top:r*cell+'px',width:cell+'px',height:cell+'px'});b.appendChild(t)}
+  g.els=[];
+  g.tiles.forEach(t=>{
+    const e=document.createElement('div');e.className='tile '+t.type;e.style.width=e.style.height=cell+'px';
+    const i=document.createElement('div');i.className='ti';e.appendChild(i);
+    if(t.type==='pic'){
+      if(g.mode==='practice')e.classList.add(t.pi===1?'dark':'light');
+      else{i.style.backgroundImage=`url("${g.img}")`;i.style.backgroundSize=`${g.N*cell}px ${g.N*cell}px`;i.style.backgroundPosition=`${-t.pj*cell}px ${-t.pi*cell}px`}
+    }
+    if(t.type==='arrow'){i.innerHTML=arrowSvg(t.dir);e.setAttribute('role','button');
+      e.setAttribute('aria-label',`Slide ${t.kind==='r'?'row':'column'} ${t.lane+1} ${t.dir}`);e.addEventListener('click',()=>onArrow(t))}
+    b.appendChild(e);g.els[t.id]=e;
+  });
+  const f=document.createElement('div');f.className='center-frame';
+  Object.assign(f.style,{left:A*cell-3+'px',top:A*cell-3+'px',width:g.N*cell+6+'px',height:g.N*cell+6+'px'});b.appendChild(f);
+  place();updateArrows();
+}
+function place(){const g=G;for(let r=0;r<g.L;r++)for(let c=0;c<g.L;c++){const id=g.grid[r][c];if(id!=null&&id>=0)g.els[id].style.transform=`translate(${c*g.cell}px,${r*g.cell}px)`}}
+function updateArrows(){const g=G;g.tiles.forEach(t=>{if(t.type==='arrow')g.els[t.id].classList.toggle('dim',!canMove(g,t.kind,t.lane,t.d))})}
+function laneIds(g,k,l){const ids=[];for(let n=0;n<g.L;n++){const id=k==='r'?g.grid[A+l][n]:g.grid[n][A+l];if(id>=0)ids.push(id)}return ids}
+
+function onArrow(t){
+  const g=G;if(!g||g.solved||!g.running)return;clearHint();
+  if(!canMove(g,t.kind,t.lane,t.d)){limitFx(t);return}
+  rawMove(g,t.kind,t.lane,t.d);pushStack(g,t.kind,t.lane,t.d);sfx.click();place();updateArrows();
+  if(isSolved(g))win();
+}
+function limitFx(t,sticky){
+  const g=G;sfx.buzz();if(vibeOn){try{navigator.vibrate&&navigator.vibrate(120)}catch(e){}}
+  laneIds(g,t.kind,t.lane).forEach(id=>{const e=g.els[id];e.classList.remove('shake');void e.offsetWidth;e.classList.add('shake')});
+  later(()=>laneIds(g,t.kind,t.lane).forEach(id=>g.els[id].classList.remove('shake')),360);
+  toast('Limit reached · each slide moves 2 spaces each way',sticky);
+}
+function toast(msg,sticky){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastH);if(!sticky)toastH=setTimeout(()=>el.classList.remove('show'),1900)}
+function hideToast(){clearTimeout(toastH);$('#toast').classList.remove('show')}
+
+/* ---------- timer ---------- */
+const fmt=ms=>{const s=Math.floor(ms/1000);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+const curElapsed=()=>G?G.elapsed+(G.running?performance.now()-G.t0:0):0;
+function drawTime(){if(G)$('#gTimer').textContent=fmt(curElapsed())}
+function startTimer(){const g=G;if(!g||g.running||g.solved)return;g.running=true;g.t0=performance.now();clearInterval(tickH);tickH=setInterval(drawTime,250);drawTime()}
+function pauseTimer(){const g=G;if(!g||!g.running)return;g.elapsed+=performance.now()-g.t0;g.running=false;clearInterval(tickH);drawTime()}
+
+/* ---------- game flow ---------- */
+function setupGameChrome(){
+  const g=G,f=$('#gFoot');
+  $('#gMode').textContent=g.mode==='practice'?'Practice':`${g.N*g.N} pieces`;
+  if(g.mode==='practice'){
+    f.innerHTML=`<div class="goal">${miniSvg(3,[],{practice:true,cell:4.6})}<span><b>Goal</b>Dark stripe across the middle</span><button class="btn" id="btnHint">Hint</button></div>Tap the arrows to slide rows and columns. Each slide moves up to 2 spaces each way.`;
+    $('#btnHint').onclick=showHint;
+  } else f.innerHTML='Tap an arrow to slide its whole row or column.<br>Rebuild the picture inside the frame.';
+}
+function startGame(N,img,mode='play',opts={}){
+  clearLater();closeSheet();closeTour();hideToast();
+  if(G)pauseTimer();
+  G=newGame(N,img,mode);show('game');setupGameChrome();buildBoard();drawTime();
+  const go=()=>{scramble(G);const b=$('#board');
+    if(!opts.instant){b.classList.add('shuffling');later(()=>b.classList.remove('shuffling'),560)}
+    place();updateArrows();startTimer();if(opts.after)later(opts.after,opts.instant?50:650)};
+  if(opts.instant)go();else{toast('Mixing up the pieces…');later(go,750)}
+}
+function startPractice(){startGame(3,null,'practice')}
+function showHint(){const g=G,top=g.stack[g.stack.length-1];if(!top||g.solved)return;const [k,l,d]=top;
+  const t=g.tiles.find(t=>t.type==='arrow'&&t.kind===k&&t.lane===l&&t.d===-d);clearHint();g.els[t.id].classList.add('hint')}
+function clearHint(){if(G&&G.els)G.els.forEach(e=>e&&e.classList.remove('hint'))}
+function win(){
+  const g=G;g.solved=true;pauseTimer();$('#board').classList.add('win');sfx.win();
+  later(openSolved,1300);
+}
+function openSolved(){
+  const g=G;
+  if(g.mode==='practice'){
+    openSheet({title:"You've got it!",note:'15',body:`<p class="lead center">That's all there is to it. Now try it with one of your own photos.</p>`,actions:[
+      {label:'Play with a photo',primary:true,fn:()=>{closeSheet();hist=['home'];show('difficulty',{push:false})}},
+      {label:'Practice again',fn:startPractice},
+      {label:'Home',quiet:true,fn:goHome}]});
+    return;
+  }
+  if(saved){saved=null;persistSaved()}
+  openSheet({title:'Solved!',note:'13',body:`<div class="bigtime">${fmt(g.elapsed)}</div><p class="fine center">${g.N*g.N} pieces · your time</p>`,actions:[
+    {label:'Play again',sub:'Same photo, new mix',primary:true,fn:()=>startGame(g.N,g.img)},
+    {label:'New photo',fn:()=>{closeSheet();pendingN=g.N;hist=['home'];show('photo',{push:false})}},
+    {label:'Home',quiet:true,fn:goHome}]});
+}
+function openPause(){
+  const g=G;pauseTimer();clearHint();
+  if(g.mode==='practice'){
+    openSheet({title:'Paused',note:'12',body:`<div class="bigtime">${fmt(g.elapsed)}</div>`,onDismiss:resume,actions:[
+      {label:'Resume',primary:true,fn:resume},{label:'Restart practice',fn:startPractice},{label:'Exit practice',quiet:true,fn:goHome}]});
+    return;
+  }
+  openSheet({title:'Paused',note:'12',body:`<div class="bigtime">${fmt(g.elapsed)}</div><p class="fine center">${g.N*g.N} pieces · timer stopped</p>`,onDismiss:resume,actions:[
+    {label:'Resume',primary:true,fn:resume},
+    {label:'Restart',sub:'Same photo, new mix',fn:()=>startGame(g.N,g.img)},
+    {label:'New photo',fn:()=>{closeSheet();pendingN=g.N;hist=['home'];show('photo',{push:false})}},
+    {label:'Save & exit',sub:'Continue later from the start screen',fn:saveExit},
+    {label:'How to play',quiet:true,fn:()=>{closeSheet();learnReturn='pause';show('learn')}},
+    {label:'Settings',quiet:true,fn:()=>{closeSheet();settingsReturn='pause';show('settings')}}]});
+}
+function resume(){closeSheet();setNote(autoNote('game'));startTimer()}
+function saveExit(){const g=G;pauseTimer();
+  saved=snapshotGame(g);persistSaved();
+  closeSheet();G=null;hist=[];show('home',{push:false});toast('Puzzle saved')}
+function resumeSaved(){const s=saved;if(!s)return;clearLater();
+  G=newGame(s.N,s.img,'play');G.grid=s.grid.map(r=>r.slice());G.off={r:s.off.r.slice(),c:s.off.c.slice()};G.elapsed=s.elapsed;saved=null;persistSaved();
+  hist=['home'];show('game',{push:false});setupGameChrome();buildBoard();startTimer()}
+function goHome(){clearLater();closeSheet();if(G)pauseTimer();G=null;hist=[];show('home',{push:false})}
+function autoSavePlaying(){
+  if(!G||G.solved||G.mode!=='play')return;
+  pauseTimer();saved=snapshotGame(G);persistSaved();
+}
+
+/* ---------- sheet + tour ---------- */
+function openSheet({title,body='',actions=[],onDismiss=null,note}){
+  const s=$('#sheet');s.innerHTML=`<div class="grab"></div><h2>${title}</h2>${body}<div class="sheet-actions"></div>`;
+  const box=s.querySelector('.sheet-actions');
+  actions.forEach(a=>{const b=document.createElement('button');b.className='btn'+(a.primary?' primary':'')+(a.quiet?' quiet':'');
+    b.innerHTML=a.label+(a.sub?`<small>${a.sub}</small>`:'');b.onclick=a.fn;box.appendChild(b)});
+  const ov=$('#ov');ov.classList.add('open');ov.querySelector('.scrim').onclick=()=>{if(onDismiss)onDismiss()};
+  if(note)setNote(note);
+}
+function closeSheet(){$('#ov').classList.remove('open')}
+const TOUR=[
+  {ill:()=>miniSvg(3,[['c',1,-1],['r',0,-1],['c',1,1],['r',0,1],['c',2,1],['r',2,1],['c',2,-1],['r',2,-1]],{cell:12}),t:'Pick any photo',d:'It is cut into 9 or 16 pieces and mixed up inside the frame.'},
+  {ill:()=>miniSvg(3,[['r',1,-1]],{cell:12,pulse:['r',1,-1]}),t:'Tap an arrow to slide',d:'The whole row or column moves one space. Each slide goes up to 2 spaces either way.'},
+  {ill:()=>miniSvg(3,[],{cell:12}),t:'Rebuild the picture',d:'Get every piece back in place inside the frame. Take your time, there is no time limit.'}];
+let tourStep=0;
+function openTour(){tourStep=0;renderTour();$('#tour').classList.add('open');setNote('02')}
+function closeTour(){$('#tour').classList.remove('open')}
+function renderTour(){const s=TOUR[tourStep],last=tourStep===TOUR.length-1;
+  $('#tourCard').innerHTML=`${s.ill()}<h3>${s.t}</h3><p>${s.d}</p><div class="dots">${TOUR.map((_,i)=>`<i class="${i===tourStep?'on':''}"></i>`).join('')}</div>
+  <div class="tour-row">${last?'':'<button class="skip" id="tSkip">Skip</button>'}<button class="btn primary" id="tNext">${last?"Let's play":'Next'}</button></div>`;
+  $('#tNext').onclick=()=>{if(last)endTour();else{tourStep++;renderTour()}};
+  if(!last)$('#tSkip').onclick=endTour;}
+function endTour(){tourSeen=true;persistTour();closeTour();setNote(autoNote('home'))}
+
+/* ---------- screens ---------- */
+function show(id,{push=true,note}={}){
+  if(cur&&push&&cur!==id)hist.push(cur);
+  $$('.screen').forEach(s=>s.classList.toggle('active',s.id==='s-'+id));cur=id;
+  if(id==='home')renderHome();
+  if(id==='photo')$('#photoChip').textContent=`${pendingN*pendingN} pieces`;
+  if(id==='crop')renderCrop();
+  if(id!=='game')hideToast();
+  setNote(note||autoNote(id));
+}
+function back(){const p=hist.pop();if(p)show(p,{push:false})}
+function autoNote(id){return {splash:'01',home:saved?'04':'03',difficulty:'05',photo:'06',crop:'07',learn:'14',settings:'16',
+  game:G?(G.mode==='practice'?'15':(G.N===4?'09':'08')):'08'}[id]}
+function renderHome(){
+  const slot=$('#continueSlot');
+  if(!saved){slot.innerHTML='';return}
+  const mins=Math.max(1,Math.round((Date.now()-saved.savedAt)/60000));
+  slot.innerHTML=`<div class="cont"><div class="thumb"><img src="${saved.img}" alt=""></div><div><b>Continue puzzle</b><span>${saved.N*saved.N} pieces · ${fmt(saved.elapsed)} so far<br>Saved ${mins} min ago</span></div><button class="btn primary" id="btnCont">Continue</button></div>`;
+  $('#btnCont').onclick=resumeSaved;
+}
+function renderCrop(){
+  $('#cropImg').src=pendingImg||'';$('#cropN').textContent=pendingN*pendingN;
+  const p=100/pendingN,gr=$('#cropGrid');
+  gr.style.backgroundImage='linear-gradient(to right,rgba(255,255,255,.95) 2px,transparent 2px),linear-gradient(to bottom,rgba(255,255,255,.95) 2px,transparent 2px)';
+  gr.style.backgroundSize=`${p}% ${p}%`;gr.style.backgroundPosition='-1px -1px';
+}
+
+/* ---------- photos ---------- */
+const SAMPLES=[];
+function makeSample(name,draw){const c=document.createElement('canvas');c.width=c.height=600;const x=c.getContext('2d');draw(x);SAMPLES.push({name,url:c.toDataURL('image/jpeg',.88)})}
+function buildSamples(){
+  makeSample('Mountains',x=>{const g=x.createLinearGradient(0,0,0,600);g.addColorStop(0,'#f4f4f4');g.addColorStop(1,'#a8a8a8');x.fillStyle=g;x.fillRect(0,0,600,600);
+    x.fillStyle='#fff';x.strokeStyle='#222';x.lineWidth=6;x.beginPath();x.arc(440,150,70,0,7);x.fill();x.stroke();
+    x.fillStyle='#555';x.beginPath();x.moveTo(-20,600);x.lineTo(210,230);x.lineTo(420,600);x.fill();
+    x.fillStyle='#fff';x.beginPath();x.moveTo(210,230);x.lineTo(160,310);x.lineTo(200,295);x.lineTo(230,320);x.lineTo(255,300);x.fill();
+    x.fillStyle='#2a2a2a';x.beginPath();x.moveTo(200,600);x.lineTo(440,300);x.lineTo(640,560);x.lineTo(640,600);x.fill();
+    x.fillStyle='#111';x.fillRect(0,520,600,80);x.fillStyle='#fff';for(let i=0;i<8;i++)x.fillRect(i*80+10,555,45,8);
+    x.strokeStyle='#111';x.lineWidth=4;[[90,120],[140,90],[120,170]].forEach(([a,b])=>{x.beginPath();x.moveTo(a-16,b);x.quadraticCurveTo(a-8,b-12,a,b);x.quadraticCurveTo(a+8,b-12,a+16,b);x.stroke()})});
+  makeSample('Target',x=>{x.fillStyle='#fff';x.fillRect(0,0,600,600);for(let r=300,k=0;r>10;r-=34,k++){x.fillStyle=k%2?'#fff':'#1a1a1a';x.beginPath();x.arc(300,300,r,0,7);x.fill()}
+    x.strokeStyle='#888';x.lineWidth=6;x.beginPath();x.moveTo(300,0);x.lineTo(300,600);x.moveTo(0,300);x.lineTo(600,300);x.stroke();
+    x.fillStyle='#111';x.font='bold 60px Arial';x.fillText('A',20,70);x.fillText('B',530,70);x.fillText('C',20,580);x.fillText('D',525,580)});
+  makeSample('Letters',x=>{x.fillStyle='#e9e9e9';x.fillRect(0,0,600,600);x.fillStyle='#111';x.fillRect(0,300,600,300);
+    x.font='900 190px Arial Black, Arial';x.textAlign='center';x.fillStyle='#111';x.fillText('PUZ',300,240);x.fillStyle='#fff';x.fillText('ZLE',300,520);
+    x.fillStyle='#777';x.beginPath();x.arc(560,40,22,0,7);x.fill()});
+  makeSample('Waves',x=>{for(let b=0;b<12;b++){const v=30+b*18;x.fillStyle=`rgb(${v},${v},${v})`;x.beginPath();x.moveTo(0,600);
+    for(let i=0;i<=600;i+=10)x.lineTo(i,b*50+30*Math.sin(i/60+b));x.lineTo(600,600);x.fill()}
+    x.fillStyle='#fff';x.beginPath();x.arc(120,110,50,0,7);x.fill()});
+  makeSample('Smile',x=>{const g=x.createRadialGradient(300,260,40,300,300,420);g.addColorStop(0,'#fff');g.addColorStop(1,'#9a9a9a');x.fillStyle=g;x.fillRect(0,0,600,600);
+    x.fillStyle='#fff';x.strokeStyle='#111';x.lineWidth=14;x.beginPath();x.arc(300,300,220,0,7);x.fill();x.stroke();
+    x.fillStyle='#111';x.beginPath();x.ellipse(220,240,26,42,0,0,7);x.fill();x.beginPath();x.ellipse(380,240,26,42,0,0,7);x.fill();
+    x.lineWidth=18;x.lineCap='round';x.beginPath();x.arc(300,320,120,.2,Math.PI-.2);x.stroke();
+    x.fillStyle='#444';x.font='bold 40px Arial';x.fillText('HELLO',30,575)});
+  makeSample('City',x=>{x.fillStyle='#f0f0f0';x.fillRect(0,0,600,600);x.fillStyle='#bbb';x.beginPath();x.arc(470,130,60,0,7);x.fill();
+    const bs=[[20,260,90],[120,180,80],[210,330,100],[320,120,90],[420,240,70],[500,300,90]];
+    bs.forEach(([bx,by,bw],k)=>{x.fillStyle=k%2?'#2b2b2b':'#555';x.fillRect(bx,by,bw,600-by);x.fillStyle='#e8e8e8';
+      for(let wy=by+20;wy<560;wy+=40)for(let wx=bx+14;wx<bx+bw-18;wx+=26)if((wx+wy+k)%3)x.fillRect(wx,wy,12,18)});
+    x.fillStyle='#111';x.fillRect(0,560,600,40)});
+}
+function renderSamples(){
+  $('#samples').innerHTML=SAMPLES.map((s,i)=>`<button class="sample" data-i="${i}"><img src="${s.url}" alt="${s.name}">${s.name}</button>`).join('');
+  $$('.sample').forEach(b=>b.onclick=()=>{pendingImg=SAMPLES[+b.dataset.i].url;show('crop')});
+}
+function fileToSquare(file,cb){const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{
+  const s=Math.min(im.width,im.height),c=document.createElement('canvas');c.width=c.height=720;
+  c.getContext('2d').drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,720,720);cb(c.toDataURL('image/jpeg',.88))};im.src=fr.result};fr.readAsDataURL(file)}
+
+/* ---------- notes ---------- */
+const NOTES={
+ '01':{t:'Splash / launch screen',w:'Shows while the app loads, then opens the start screen.',
+   i:['"CrissCross" is a placeholder name until the client confirms the real one.','Tap to skip. Continues on its own after about 1.5 seconds.']},
+ '02':{t:'First-launch tour',w:'Three short cards the very first time the app opens.',
+   i:['Cards: pick a photo, tap arrows to slide, rebuild the picture.','Skip any time. A "seen" flag is kept on the phone; clearing app data shows it again.','The same content is always available under How to play.'],
+   q:['Show the tour once, or on the first two launches? (Raised on the kickoff call.)']},
+ '03':{t:'Start screen',w:'Simple start: choose a photo and play.',
+   i:['No account, login or score tracking (contract: Open & Play).','New puzzle: choose difficulty, then a photo.','How to play: guide, practice puzzle and sample photos.','Settings: sound and vibration toggles.']},
+ '04':{t:'Start screen · saved puzzle',w:'Shows when the player saved an unfinished puzzle.',
+   i:['Continue restores the board exactly as it was left; the timer picks up from the saved time (contract: Save & Resume).','One saved puzzle at a time. Starting a new puzzle shows a warning that the unfinished save will be removed, then clears it.','Stored on the phone only (persistent local save). Deleting the app or clearing its data removes it.','Mobile app: auto-save unfinished play when the app is backgrounded or closed.'],
+   q:['Is one saved puzzle enough, or should there be a list?']},
+ '05':{t:'Choose difficulty',w:'Picked before the photo (confirmed 13 Oct).',
+   i:['9 pieces = 3 × 3 frame. Each line is 5-3-5 = 13 squares.','16 pieces = 4 × 4 frame. Each line is 5-4-5 = 14 squares.','Rules are identical; only the board size changes.']},
+ '06':{t:'Choose a photo',w:'Gallery or a built-in sample.',
+   i:['Choose from gallery opens the phone photo picker. In this prototype you can pick a real image from your computer.','Sample photos are built in so people can play without uploading (contract: Learn to Play).','iOS and Android ask for photo access the first time.'],
+   d:['Photos are only read on the device. Nothing is uploaded, so no backend is needed.']},
+ '07':{t:'Photo preview',w:'Shows the square crop and how it will be cut.',
+   i:['Photo is cropped to a centred square automatically (contract: automatic crop to a square).','Grid lines show the 9 or 16 pieces.','Start puzzle mixes the pieces instantly.'],
+   q:['Should players be able to move or zoom the crop? Contract says automatic only.']},
+ '08':{t:'Game board · 3 × 3',w:'The crisscross board. Fully playable here.',
+   i:['Every row and column is one rigid slide: arrow, 2 blanks, the frame, 2 blanks, arrow. 2 empty squares at each end give it room to move.','Tap an arrow: the whole row or column moves one space that way. Click sound on every move.','Each slide moves at most 2 spaces either way from its start (4 in total).','Picture pieces start inside the frame and travel out into the arms and back as slides move.','Timer starts when the board appears. No time limit.'],
+   d:['Scramble = start solved, then apply random legal moves in 4-move blocks that bring every slide back home. Keep only blocks that leave all picture pieces inside the frame. Every mix is solvable and different.','Never shuffle pieces randomly: that can create a puzzle with no solution.','Solved = every square in the frame holds its own piece. Slides are always home at that point, so no extra check is needed.']},
+ '09':{t:'Game board · 4 × 4',w:'Same rules with a 4 × 4 frame.',
+   i:['Each line is 5-4-5 = 14 squares.','Harder: more pieces, same 2-space limit per slide.'],
+   d:['On a 390 pt wide phone a square is about 25 pt. Arrow tap areas must be at least 44 pt, so extend each arrow\'s hit area along its lane.']},
+ '10':{t:'Board mid-game',w:'What the board looks like after a few moves.',
+   i:['Pieces pushed out of the frame sit in the arms.','Patterned squares are blanks (confirmed: patterned, so they never look like part of the photo).','Blanks move into the frame as pieces leave; the frame is never empty.']},
+ '11':{t:'Slide limit reached',w:'Feedback when a slide cannot move further.',
+   i:['Phone vibrates, buzz sound, and the slide shakes (contract: buzz and vibration at a slide\'s limit).','Proposal: an arrow dims while its direction is at the limit, so players learn the rule visually.']},
+ '12':{t:'Pause menu',w:'Opened from the pause button.',
+   i:['Timer stops while paused.','Resume, Restart (same photo, new mix), New photo, Save & exit, How to play, Settings.','Mobile app: leaving the app mid-game auto-pauses the timer and auto-saves.']},
+ '13':{t:'Puzzle solved',w:'Shown as soon as the frame is complete.',
+   i:['Picture flashes and lights up, then a short victory sound (contract: Sound & Visual Feedback).','Shows the time taken. Play again keeps the photo with a new mix.','No personal bests, history, scores or leaderboard for now (possible later upsell).']},
+ '14':{t:'How to play',w:'Short guide plus practice (contract: Learn to Play).',
+   i:['Explains how slides move and their limits.','Practice puzzle with a simple two-colour layout.','Play a sample photo without uploading.']},
+ '15':{t:'Practice puzzle',w:'Two-colour 3 × 3 board for learning.',
+   i:['Goal: rebuild the dark stripe across the middle.','Mixed with only a couple of moves, so it is easy.','Hint highlights the next arrow to tap (proposal).']},
+ '16':{t:'Settings',w:'Sound and vibration toggles.',
+   i:['Sound effects: moves, limit buzz, victory.','Vibration: only when a slide hits its limit.','Both default on. Saved locally with other progress.','Also reachable from the pause menu.']}
+};
+const RULES=['Two sizes: 3 × 3 (9 pieces) and 4 × 4 (16 pieces)','Tap arrows only, one space per tap','Each slide moves up to 2 spaces either way from home','Start: all slides home, all pieces mixed inside the frame','Win: picture complete inside the frame','Blank squares are patterned','Persistent local save on the phone','Settings: sound and vibration toggles','Mobile: auto-pause and auto-save on background/close','Custom artwork: parked for now','App name: decide later'];
+const QUESTIONS=['Can players peek at the original photo while playing?'];
+function setNote(k){if(!k)return;noteKey=k;const n=NOTES[k];
+  const list=(h,a)=>a&&a.length?`<h4>${h}</h4><ul>${a.map(x=>`<li>${x}</li>`).join('')}</ul>`:'';
+  $('#notes').innerHTML=`<div class="sid">Screen ${k}</div><h2>${n.t}</h2><p class="what">${n.w}</p>${list('Behaviour',n.i)}${list('Dev notes',n.d)}${list('To confirm',n.q)}
+   <div class="box">${list('Game rules (confirmed)',RULES)}${list('Open questions',QUESTIONS)}</div>`;
+  $$('.jump').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
+}
+
+/* ---------- jump menu ---------- */
+const S0=()=>SAMPLES[0].url;
+function resetView(){clearLater();closeSheet();closeTour();hideToast();if(G)pauseTimer();hist=[];learnReturn=null;settingsReturn=null}
+function demoSaved(){const g=newGame(3,S0(),'play');scramble(g);rawMove(g,'r',1,-1);
+  return {N:3,img:g.img,grid:g.grid,off:g.off,elapsed:252000,savedAt:Date.now()-120000}}
+const JUMPS=[
+ ['App start'],
+ ['01','Splash',()=>show('splash',{push:false})],
+ ['02','First-launch tour',()=>{show('home',{push:false});openTour()}],
+ ['03','Start screen',()=>{saved=null;G=null;show('home',{push:false})}],
+ ['04','Start screen · saved puzzle',()=>{if(!saved)saved=demoSaved();show('home',{push:false})}],
+ ['New puzzle'],
+ ['05','Choose difficulty',()=>{hist=['home'];show('difficulty',{push:false})}],
+ ['06','Choose a photo',()=>{pendingN=3;hist=['home','difficulty'];show('photo',{push:false})}],
+ ['07','Photo preview',()=>{pendingN=3;pendingImg=S0();hist=['home','difficulty','photo'];show('crop',{push:false})}],
+ ['Playing'],
+ ['08','Game board · 3 × 3',()=>startGame(3,S0())],
+ ['09','Game board · 4 × 4',()=>startGame(4,SAMPLES[1].url)],
+ ['10','Board mid-game',()=>startGame(3,S0(),'play',{instant:true,after:()=>{applyN(G,'r',1,-2);applyN(G,'c',0,-1);place();updateArrows();setNote('10')}})],
+ ['11','Slide limit reached',()=>startGame(3,S0(),'play',{instant:true,after:()=>{applyN(G,'r',1,-2);place();updateArrows();setNote('11');
+    later(()=>limitFx(G.tiles.find(t=>t.type==='arrow'&&t.kind==='r'&&t.lane===1&&t.d===-1),true),250)}})],
+ ['12','Pause menu',()=>startGame(3,S0(),'play',{instant:true,after:openPause})],
+ ['13','Puzzle solved',()=>{G=newGame(3,S0(),'play');G.elapsed=222000;show('game',{push:false});setupGameChrome();buildBoard();drawTime();later(win,300)}],
+ ['Learn'],
+ ['14','How to play',()=>{hist=['home'];show('learn',{push:false})}],
+ ['15','Practice puzzle',()=>startPractice()],
+ ['16','Settings',()=>{hist=['home'];show('settings',{push:false})}]
+];
+function buildJumps(){
+  const box=$('#jumps');
+  JUMPS.forEach(j=>{
+    if(j.length===1){const h=document.createElement('div');h.className='navgrp';h.textContent=j[0];box.appendChild(h);return}
+    const b=document.createElement('button');b.className='jump';b.dataset.k=j[0];b.innerHTML=`<span class="n">${j[0]}</span><span>${j[1]}</span>`;
+    b.onclick=()=>{resetView();j[2]();if(j[0]!=='10'&&j[0]!=='11')setNote(j[0])};box.appendChild(b);
+  });
+}
+
+/* ---------- wiring ---------- */
+function fit(){const st=$('.stage'),s=Math.min(1,(st.clientHeight-30)/864,(st.clientWidth-30)/410);$('#phone').style.transform=`scale(${s})`}
+function proceedFromSplash(){clearLater();show('home',{push:false});if(!tourSeen)openTour()}
+function init(){
+  loadPersist();
+  buildSamples();renderSamples();buildJumps();
+  $('#logoMark').innerHTML=`<svg width="96" height="96" viewBox="0 0 30 30"><path d="M10 0h10v10h10v10H20v10H10V20H0V10h10z" fill="#111"/><rect x="10" y="10" width="10" height="10" fill="#fff" stroke="#111"/><path d="M13.33 10v10M16.66 10v10M10 13.33h10M10 16.66h10" stroke="#111" stroke-width=".6"/></svg>`;
+  $('#heroMini').innerHTML=miniSvg(3,[['c',1,-1],['r',0,-1],['c',1,1],['r',0,1]],{cell:13});
+  $$('.d-ill').forEach(e=>e.innerHTML=miniSvg(+e.dataset.ill,[],{cell:5.2}));
+  const steps=[
+    [miniSvg(3,[['c',1,-1],['r',0,-1],['c',1,1],['r',0,1],['c',2,1],['r',2,1],['c',2,-1],['r',2,-1]],{cell:6.4}),'Your photo, mixed up','It is cut into pieces and mixed up inside the frame.'],
+    [miniSvg(3,[['r',1,-1]],{cell:6.4,pulse:['r',1,-1]}),'Tap an arrow','The whole row or column slides one space that way.'],
+    [miniSvg(3,[['r',1,-2]],{cell:6.4}),'Up to 2 spaces','Each slide moves at most 2 spaces each way from where it starts. At the limit your phone buzzes.'],
+    [miniSvg(3,[['r',1,-2],['c',2,1]],{cell:6.4}),'Use the blanks','Patterned squares are blanks. Push pieces out of the frame and bring them back where they belong.'],
+    [miniSvg(3,[],{cell:6.4}),'Rebuild the picture','Get every piece back inside the frame. The timer shows your time, with no limit.']];
+  $('#steps').innerHTML=steps.map(s=>`<div class="step">${s[0]}<div class="txt"><b>${s[1]}</b>${s[2]}</div></div>`).join('');
+
+  $('#splashTap').onclick=proceedFromSplash;
+  $$('[data-back]').forEach(b=>b.onclick=back);
+  $('#btnNew').onclick=()=>{
+    if(saved){openSheet({title:'Start a new puzzle?',body:'<p class="lead center">This will remove your unfinished saved puzzle.</p>',onDismiss:closeSheet,actions:[
+      {label:'Start new puzzle',primary:true,fn:()=>{saved=null;persistSaved();closeSheet();show('difficulty')}}]});return}
+    show('difficulty')};
+  $('#btnLearn').onclick=()=>{learnReturn=null;show('learn')};
+  $('#btnSettings').onclick=()=>{settingsReturn=null;show('settings')};
+  $$('.diff').forEach(b=>b.onclick=()=>{pendingN=+b.dataset.n;show('photo')});
+  $('#btnGallery').onclick=()=>$('#file').click();
+  $('#file').onchange=e=>{const f=e.target.files[0];if(!f)return;fileToSquare(f,url=>{pendingImg=url;show('crop')});e.target.value=''};
+  $('#btnStart').onclick=()=>{if(saved){saved=null;persistSaved()}hist=['home'];startGame(pendingN,pendingImg)};
+  $('#btnOther').onclick=back;
+  $('#btnPause').onclick=()=>{if(G&&!G.solved)openPause()};
+  $('#learnBack').onclick=()=>{if(learnReturn==='pause'&&G){learnReturn=null;show('game',{push:false});hist=['home'];openPause()}else back()};
+  $('#settingsBack').onclick=()=>{if(settingsReturn==='pause'&&G){settingsReturn=null;show('game',{push:false});hist=['home'];openPause()}else back()};
+  $('#btnPractice').onclick=()=>{learnReturn=null;startPractice()};
+  $('#btnSample').onclick=()=>{learnReturn=null;show('difficulty')};
+  $('#setSound').onchange=e=>{soundOn=e.target.checked;persistSettings();syncSettingsUI()};
+  $('#setVibe').onchange=e=>{vibeOn=e.target.checked;persistSettings()};
+  $('#snd').onchange=e=>{soundOn=e.target.checked;persistSettings();syncSettingsUI()};
+  syncSettingsUI();
+  $('#resetProto').onclick=()=>{resetView();clearPersist();G=null;show('splash',{push:false});later(proceedFromSplash,1500)};
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){autoSavePlaying()}
+    else if(G&&!G.solved&&cur==='game'&&!$('#ov').classList.contains('open'))startTimer();
+  });
+  window.addEventListener('pagehide',autoSavePlaying);
+  window.addEventListener('resize',fit);fit();
+  show('splash',{push:false});later(proceedFromSplash,1500);
+}
+init();
+</script>
+</body>
+</html>
